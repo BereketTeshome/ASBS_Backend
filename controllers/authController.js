@@ -19,6 +19,29 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT id, first_name, last_name, email, username, country, is_verified, language_preference, point_balance, last_withdrawal FROM users WHERE id = $1",
+      [id]
+    );
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the user" });
+  }
+};
+
 const register = async (req, res) => {
   const {
     first_name,
@@ -114,4 +137,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getUsers, deleteUser };
+module.exports = { register, login, getUsers, getUserById, deleteUser };
