@@ -15,6 +15,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/websites", websiteRoutes);
 app.use("/api/campaigns", campaignRoutes);
 app.use("/api/visitors", visitorRoutes);
+app.use("/", (req, res) => {
+  res.send("ASBS Backend running successfully!");
+});
 
 const PORT = 6543;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
