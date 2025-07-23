@@ -94,20 +94,19 @@ const login = async (req, res) => {
       email,
     ]);
     const user = result.rows[0];
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
+
     const token = jwt.sign(
       {
         id: user.id,
-        adminname: user.adminname,
-        restaurantname: user.restaurantname,
-        logo: user.logo,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        username: user.username,
         email: user.email,
-        location: user.location,
-        phone: user.phone,
-        status: user.status,
-        isadmin: user.isadmin,
+        website_url: user.website_url,
       },
       process.env.JWT_SECRET,
       { expiresIn: "30d" }
