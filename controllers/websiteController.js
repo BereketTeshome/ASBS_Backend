@@ -4,7 +4,9 @@ const { v4: uuidv4 } = require("uuid");
 // Get all websites
 const getWebsites = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM websites ORDER BY id DESC");
+    const result = await pool.query(
+      "SELECT * FROM websites ORDER BY created_at DESC"
+    );
     res.status(200).json(result.rows);
   } catch (err) {
     console.error(err.message);
@@ -12,17 +14,41 @@ const getWebsites = async (req, res) => {
   }
 };
 
-// Submit a website for approval
+// Create a new website record (all fields)
 const createWebsite = async (req, res) => {
-  const { url, user_id, approved, status, created_at } = req.body;
-  const id = uuidv4(); // If you want to auto-generate the UUID on the backend
+  const {
+    url,
+    user_id,
+    approved = false,
+    status = false,
+    web_name,
+    description,
+    daily_visits = 0,
+    poin_earned = 0,
+    created_at = new Date().toISOString(),
+  } = req.body;
+
+  const id = uuidv4();
 
   try {
     const result = await pool.query(
-      `INSERT INTO websites (id, url, user_id, approved, status, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [id, url, user_id, approved, status, created_at]
+      `INSERT INTO websites (
+        id, url, user_id, approved, status, created_at,
+        web_name, description, daily_visits, poin_earned
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING *`,
+      [
+        id,
+        url,
+        user_id,
+        approved,
+        status,
+        created_at,
+        web_name,
+        description,
+        daily_visits,
+        poin_earned,
+      ]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
