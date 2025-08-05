@@ -42,6 +42,76 @@ const getUserById = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const {
+    first_name,
+    last_name,
+    email,
+    username,
+    country,
+    language_preference,
+    website_url,
+  } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users 
+       SET first_name = $1, last_name = $2, email = $3, username = $4, 
+           country = $5, language_preference = $6, website_url = $7
+       WHERE id = $8 
+       RETURNING *`,
+      [
+        first_name,
+        last_name,
+        email,
+        username,
+        country,
+        language_preference,
+        website_url,
+        id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the user" });
+  }
+};
+
+const updatePointBalance = async (req, res) => {
+  const { id } = req.params;
+  const { point_balance } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users 
+       SET point_balance = $1 
+       WHERE id = $2 
+       RETURNING *`,
+      [point_balance, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating point balance" });
+  }
+};
+
 const register = async (req, res) => {
   const {
     first_name,
@@ -136,4 +206,12 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getUsers, getUserById, deleteUser };
+module.exports = {
+  register,
+  login,
+  getUsers,
+  getUserById,
+  deleteUser,
+  updatePointBalance,
+  updateUser,
+};
